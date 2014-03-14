@@ -4,24 +4,45 @@ Length.s
 
 title: .asciiz “This program computes the length of the string entered\n\n”
 
-message1: .ascii “Enter the string”
-char: .byte 0
+input: .ascii “Enter the string”
+c: .word -2
+eof: .word -1 
 length: .word 0
 
 .text
 
-.globl largest
+.globl strlen
 
-length:
-	cmpq %rsi, %rdi
-	jle else_branch
-	movq %rdi, %rax
-		jmp end_max
-	else_branch:
-		movq %rsi, %rax
-	end_max:
-		ret
+strlen:
+
+while:
+  #read char from stdin
+  cmpq %rdi %rsi
+  jeq end_loop
+  addq $1, %rax
+  jmp while
+
+end_loop:
+  ret
 
 .globl main
 
 main:
+
+  movq $title, %rdi
+  movq $0, %rax
+  call printf
+
+  movq $input, %rdi
+  movq $0, %rax
+  call printf
+
+  movq $c, %rdi
+  movq $eof, %rsi
+  movq $length, %rax
+  jsr strlen
+
+  movq $output, rdi
+  movq $rax, rsi
+  movq $0, %rax
+  call printf
