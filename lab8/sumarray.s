@@ -2,29 +2,29 @@
 
 .data
 
-title: .asciiz “This program sums a set of five numbers”
+title: .string "This program sums a set of five numbers\n"
 
-input1: .asciiz “Enter the first number: \n”
-scan_formtat1: .asciiz "%d\n"
-num1: .word 0
+input1: .string "Enter the first number: \n"
+scan_format1: .string "%d\n"
+.comm num1, 32
 
-input2: .asciiz “Enter the second number\n”
-scan_formtat2: .asciiz "%d\n"
-num2: .word 0
+input2: .string "Enter the second number\n"
+scan_format2: .string "%d\n"
+.comm num2, 32
 
-input3: .asciiz “Enter the third number: \n”
-scan_formtat2: .asciiz "%d\n"
-num3: .word 0
+input3: .string "Enter the third number: \n"
+scan_format3: .string "%d\n"
+.comm num3, 32
 
-input4: .asciiz “Enter the fourth number\n”
-scan_formtat4: .asciiz "%d\n"
-num4: .word 0
+input4: .string "Enter the fourth number\n"
+scan_format4: .string "%d\n"
+.comm num4, 32 
 
-input5: .asciiz “Enter the fifth number: \n”
-scan_formtat5: .asciiz "%d\n"
-num5: .word 0
+input5: .string "Enter the fifth number:\n"
+scan_format5: .string "%d\n"
+.comm num5, 32
 
-output: .asciiz "The sum of the numbers is %d\n"
+output: .string "The sum of the numbers is %d\n"
 
 .text
 
@@ -32,18 +32,18 @@ output: .asciiz "The sum of the numbers is %d\n"
 
 sumarray:
 
-	movq %rdi %rax
-	addq %rsi %rax
-	addq %rdx %rax
-	addq %rcx %rax
-	addq %r8  %rax
+	movq %rdi, %rax
+	addq %rsi, %rax
+	addq %rdx, %rax
+	addq %rcx, %rax
+	addq %r8,  %rax
 	ret
 
 .globl main
 
 main:
 
-  movq title, %rdi
+  movq $title, %rdi
   movq  $0, %rax
   call printf
 
@@ -53,7 +53,7 @@ main:
 
   movq $scan_format1, %rdi
   movq $num1, %rsi
-  movq %0, %rax
+  movq $0, %rax
   call scanf
 
   movq $input2, %rdi
@@ -62,7 +62,7 @@ main:
 
   movq $scan_format2, %rdi
   movq $num2, %rsi
-  movq %0, %rax
+  movq $0, %rax
   call scanf
 
   movq $input3, %rdi
@@ -71,7 +71,7 @@ main:
 
   movq $scan_format3, %rdi
   movq $num3, %rsi
-  movq %0, %rax
+  movq $0, %rax
   call scanf
 
   movq $input4, %rdi
@@ -80,7 +80,7 @@ main:
 
   movq $scan_format4, %rdi
   movq $num4, %rsi
-  movq %0, %rax
+  movq $0, %rax
   call scanf
 
   movq $input5, %rdi
@@ -89,7 +89,7 @@ main:
 
   movq $scan_format5, %rdi
   movq $num5, %rsi
-  movq %0, %rax
+  movq $0, %rax
   call scanf
 
   movq $num1, %rdi
@@ -103,7 +103,8 @@ main:
   addq %rcx, %rdi
   addq %r8,  %rdi 
 
-  movq %rdi, %rsi
+  movq $0, %rsi
+  addq %rdi, %rsi
 
   movq $output, %rdi
   movq $0, %rax

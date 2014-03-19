@@ -1,29 +1,26 @@
-Length.s
+#Length.s
 
 .data
 
-title: .asciiz “This program computes the length of the string entered\n\n”
+title: .string "This program computes the length of the string entered\n"
 
-input: .ascii “Enter the string”
-c: .word -2
-eof: .word -1 
-length: .word 0
+input: .string "Enter the string:\n"
+output: .string "The length is %d\n"
 
 .text
 
-.globl strlen
-
 strlen:
 
-while:
-  #read char from stdin
-  cmpq %rdi %rsi
-  jeq end_loop
-  addq $1, %rax
-  jmp while
+  while:
+    call getchar
+    cmpq $65, %rax
+    je end_loop
+    addq $1, %r8
+    jmp while
 
-end_loop:
-  ret
+  end_loop:
+    movq %r8, %rax
+    ret
 
 .globl main
 
@@ -37,12 +34,9 @@ main:
   movq $0, %rax
   call printf
 
-  movq $c, %rdi
-  movq $eof, %rsi
-  movq $length, %rax
-  jsr strlen
+  call strlen
 
-  movq $output, rdi
-  movq $rax, rsi
+  movq $output, %rdi
+  movq %rax, %rsi
   movq $0, %rax
   call printf
