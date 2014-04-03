@@ -2,17 +2,17 @@
 
 .data
 
-title: .asciiz “This program computes which number is the largest\n”
+title: .string "This program computes which number is the largest\n"
 
-input1: .asciiz “Enter the first number: \n”
-scan_format1: .asciiz “%d\n”
-num1: .word 0
+input1: .string "Enter the first number: \n"
+scan_format1: .string "%ld"
+.comm num1 32 
 
-input2: .asciiz “Enter the second number\n”
-scan_format2: .asciiz “%d\n”
-num2: .word 0
+input2: .string "Enter the second number\n"
+scan_format2: .string "%ld"
+.comm num2 32
 
-print_format: .asciiz "The largest number is %d\n"
+output: .string "The largest number is %ld\n"
 
 .text
 
@@ -22,10 +22,10 @@ largest:
 	cmpq %rsi, %rdi
 	jle else_branch
 	movq %rdi, %rax
-		jmp end_max
+		jmp end_largest
 	else_branch:
 		movq %rsi, %rax
-	end_max:
+	end_largest:
 		ret
 
 .globl main
@@ -45,15 +45,19 @@ main:
   movq $0, %rax
   call scanf
 
+  movq $input2, %rdi
+  movq $0, %rax
+  call printf
+
   movq $scan_format2, %rdi
   movq $num2, %rsi
   movq $0, %rax
   call scanf
 
-  movq $num1, rdi
-  movq $num2, rsi
+  movq $num1, %rdi
+  movq $num2, %rsi
   movq $0, %rax
-  jsr largest
+  call largest
 
   movq %rax, %rsi
   movq output, %rdi
