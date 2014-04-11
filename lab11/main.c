@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 struct X{
     char ch1;
@@ -59,42 +60,49 @@ int main() {
 
 int hexdump(void *strt, void *stp) { 
 
-    /* strt is the starting address of the memory block and stp is the ending adrress of the block */
-    /* If stop < start, consider stop as the starting address and vice versa. */
-
-    int *strt_p, *stp_p;
-
-    if (strt < stp) {
-        stp_p = (int *) &strt;
-        strt_p = (int *) &stp;
+    if (strt > stp) { // ensure strt is found earlier in memory
+        void *temp = strt;
+        strt = stp;
+        stp = temp;
     }
-    else {
-        strt_p = (int *) &strt;
-        stp_p = (int *) &stp;
-    }
-    while(strt_p > stp_p) {
-        for(int i = 0; i < 4; i++) {
-            printf("%p", stp_p);
-            strt_p += i;
+    int *strt_p = strt;
+    int *stp_p = stp;
+     //round down to multiple of 16
+     //round up to multiple of 15
+
+    printf("Dumping from address %p to %p\n\n", strt, stp);
+    printf("\tAddresses\t\tValues in Memory\t\tPrintable\n");
+
+    while(strt < stp) {
+
+        printf("%p - %p  ", strt, strt + 16); //Addresses
+
+        int *n;
+        int i;
+        for(i = 0; i < sizeof(int);i++) { // Values in Memory
+            n = (int *) strt;
+            printf("%x ", *n);
+            strt += i;
         }
-        putchar('\n');
+
+        strt -= i;
+        printf(" *");
+
+        char *c;
+        char j;
+
+        for(j = 0; j < 16*sizeof(char); j++) { //Printables
+            c = (char *) strt;
+            if (isprint((int) *c)) {
+                printf("%c", *c);
+            }
+            else {
+                putchar('.');
+            }
+            strt += j;
+        }
+        printf("*\n\n");
     }
-
-    /* On each line of the hex dump your function will display 16 bytes of memory.  The first address of a line will always */
-    /* be a multiple of 16, and the last address on the line will always be a multiple of 16 minus 1 */
-
-    /* Truncate the start address to the largest multiple of 16 that is less than or equal to the specified start argument */
-
-    /* Round the stop addresses up to a multiple of 16 minus one that is greater than or equal to the specified stop argument */
-
-    /* Ex: if start=21, make it 16.  If stop is 29, make it 31.  Think binary and optimize the code.  For example, */
-    /* if start is "0x53FF6708", it will become "0x53FF6700" .  Similarly, if stop="0x53FF67DC", it will become "0x53FF67DF" */
-
-    /* print the data byte-by-byte between start and stop in the below given format (Check the example output) */
-    /* Print ascii equivalent of printable characters. */
-    /* For the ASCII output, only print the "printable" characters.  If a character is not printable, print */
-    /* a dot in its place.  You may use the function "isprint((int)ch)" which returns true if the character */
-    /* 'ch' is printable */
 
     return 0;
 }
