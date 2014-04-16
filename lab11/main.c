@@ -65,13 +65,11 @@ int hexdump(void *strt, void *stp) {
         strt = stp;
         stp = temp;
     }
-    int *strt_p = strt;
-    int *stp_p = stp;
-    //strt_p = strt_p & ;//round down to multiple of 16
-    //stp_p = stp_p ;//round up to multiple of 15
 
-    //strt = strt_p;
-    //stp = stp_p;
+    strt = (void *)(((unsigned long) strt) & (~0x10)); 
+    char byte = 1;
+    stp =(void *) ((((unsigned long)stp) + 15) & (~0xf));
+    stp -= byte;
 
     printf("Dumping from address %p to %p\n\n", strt, stp);
     printf("\tAddresses\t\tValues in Memory\t\tPrintable\n");
