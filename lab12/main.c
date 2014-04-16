@@ -31,6 +31,7 @@ int fd_write = 1;
 char write_buf[MAX_BUFFER];
 char *wp;
 int write_buf_size;
+int write_current_size = 0;
 
 /* Declare global variables for read operations here */
 int fd_read;
@@ -84,9 +85,12 @@ int main() {
                     printf("\n Error opening the readable file \n");
                     return 1;
                 }
+                int c;
                 begin = clock();
                 for (i=0;i<bytes_to_read;i++) {  /* you may need to modify this slightly to print the character received and also check for end of file */
-                    if(myreadc() == -1)
+                    c = myreadc();
+                    printf("%c", c);
+                    if(c == -1)
                     {
                         printf("\n End of file \n");
                         break;
@@ -129,13 +133,18 @@ int main() {
 }
 
 void mywritec(char ch) {
-    write(1, (void *)ch, fd_write);
+    /* Use the system call write() to write char 'ch' to standard output (file descriptor 1) */
+    void *v = (void *) &ch;
+    write(fd_write, (void *)v, 1);
 }
 
 void mywritebufsetup(int n) {
+    /* verify that n is a positive integer less than or equal to MAX_BUFFER, and store n
+     * in global variable write_buf_size */
     if (n >= 0 && n <= MAX_BUFFER)
         write_buf_size = n;
-    wp = &write_buf[0];
+    /* Initialize wp to point to the first byte of buffer */
+    wp = &(write_buf[0]);
 }
 
 void myputc(char ch) {
@@ -144,39 +153,59 @@ void myputc(char ch) {
     wp++;
     /* If the buffer is full (contains write_buf_size characters), write the entire buffer to standard */
     /*    output using the write() system call and reset wp to the first location of the buffer */
+    if (wp == &write_buf[write_buf_size - 1]) {
+        printf("got here\n");
+        write(fd_write, write_buf, write_buf_size);
+        wp = &write_buf[0];
+    }
     /* Note that myputc() will be called multiple times before the buffer is written out */
 }
 
 void mywriteflush(void) {
     /* Note: this function will be called after all calls to myputc() have been made */
     /* if any characters remain in the write buffer, write them to standard output */
+    while(*wp != 0)
+        write(1, (void *) wp, 1);
 }
 
 int myreadc(void) {
+    /* if read() indicates end-of-file, return -1 to the caller. */ 
+    /* Use read() system call to read a character from standard input (file descriptor: fd_read) */
     int c;
     read(fd_read, &c, 1);
     if (c == EOF)
         return -1;
+    /* Otherwise, return the character that was read in the low-order byte of the integer (be careful to avoid sign extension). */
+    c &= 0xf;
     return c;
 }
 
 void myreadbufsetup(int n) {
+
+    /* Verify that n is a positive integer less than or equal to MAX_BUFFER, and store n in global variable read_buf_size. */
     if (n >= 0 && n <= MAX_BUFFER)
         read_buf_size = n;
+    /* Set read_count to zero */
     read_count = 0;
 }
 
 int mygetc() {
-    if (read_count <= 0) {
-
-    }
     /* If read_count is less than or equal to zero, call read() to read up to read_buf_size bytes into read_buf from */
     /*   standard input (file descriptor 0), and set read_count to the number of bytes actually read. Set rp to the */
     /*   first location in the buffer.  If the read_count is zero (the read call returned end-of-file), return -1 to */
     /*   the caller to indicate end-of-file. */
+    if (read_count <= 0) {
+        read_count = read(fd_read, read_buf, read_buf_size);
+        rp = &read_buf[0];
+        if (read_count == 0)
+            return -1;
+    }
     /* Extract the next character from the buffer, increment rp and decrement read_count.  Return the character extracted */
     /*   from the buffer in the low-order byte of an integer (be careful to avoid sign extension). */
-
+    char ch = *rp;
+    rp++;
+    read_count--;
+    return ch;
     /* Note that this function will be called multiple times before the whole buffer is emptied. */
 }
 
