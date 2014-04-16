@@ -67,8 +67,8 @@ int hexdump(void *strt, void *stp) {
     }
 
     strt = (void *)(((unsigned long) strt) & (~0x10)); 
-    char byte = 1;
     stp =(void *) ((((unsigned long)stp) + 15) & (~0xf));
+    char byte = 1;
     stp -= byte;
 
     printf("Dumping from address %p to %p\n\n", strt, stp);
